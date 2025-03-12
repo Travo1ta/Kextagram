@@ -2,24 +2,38 @@
 
 
 //Функция, возвращающая случайное целое число из переданного диапазона включительно
-function getRandomInt(from, to) {
-  // Проверяем, что значения корректные
-  if (from > to) {
-    throw new Error('Значение "от" не может быть больше значения "до".');
+const getRandomNum = (start, end) => {
+  if (start < 0 || end < 0) {
+    throw new TypeError('Допускаются только положительные числа!');
   }
 
-  // Генерируем случайное целое число в диапазоне от "from" до "to" включительно
-  return Math.floor(Math.random() * (to - from + 1)) + from;
-}
+  if (isNaN(start) || isNaN(end)) {
+    throw new TypeError('Параметры могут быть только числами!');
+  }
 
-getRandomInt();
+  if (start === end) {
+    throw new TypeError('Невозможно сформировать разные числа!');
+  }
+
+  if (start > end) {
+    [start, end] = [end, start];
+  }
+
+  start = Math.ceil(start);
+  end = Math.floor(end);
+
+  return Math.floor(Math.random() * (end - start + 1)) + start;
+};
 
 
 //Функция для проверки максимальной длины строки.
 
-function checkStringLength(inputString, maxLength) {
-  return inputString.length <= maxLength;
-}
+const isLengthLimit = (string, maxLength) =>  string.length <= maxLength;
 
-checkStringLength();
+isLengthLimit();
 
+// функция получения случайного элемента из массива
+
+const getRandomElement = (elements) => elements[getRandomNum(0, elements.length - 1)];
+
+getRandomElement();
