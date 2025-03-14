@@ -77,15 +77,12 @@ const createComment = (id) => {
 };
 
 // Функция для генерации массива комментариев
-const generateComments = (count) => {
-  const comments = [];
-  for (let i = 0; i < count; i++) {
-    comments.push(createComment(i + 1)); // начиная с 1
-  }
-  return comments;
-};
+const generateComments = (count) =>
+  Array.from({ length: count }, (_, index) => createComment(index + 1));
+
 
 // Функция для создания объекта фотографии
+
 const createPicture = (id) => {
   const likes = getRandomNum(15, 200);
   const commentsCount = getRandomNum(1, 5); // количество комментариев от 1 до 5
@@ -99,14 +96,9 @@ const createPicture = (id) => {
 };
 
 // Основная функция для генерации массива фотографий
-const getPictures = () => {
-  const arr = [];
-  for (let i = 1; i <= 25; i++) {
-    const picture = createPicture(i);
-    arr.push(picture);
-  }
-  return arr;
-};
+
+const getPictures = () =>
+  Array.from({ length: 25 }, (_, index) => createPicture(index + 1));
 
 // Генерация массива из 25 фотографий
 const photosArray = getPictures();
