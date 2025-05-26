@@ -1,5 +1,4 @@
-// picture-render.js
-
+import { showBigPicture } from './big-picture.js';
 
 const picturesContainer = document.querySelector('.pictures');
 
@@ -22,6 +21,10 @@ const createPictureElement = ({ url, likes, comments, description }) => {
 
   pictureElement.querySelector('.picture__comments').textContent = comments.length;
 
+  // Добавляем обработчик клика по миниатюре
+  pictureElement.addEventListener('click', () => {
+    showBigPicture({ url, likes, comments, description });
+  });
 
   return pictureElement;
 };

@@ -9,8 +9,25 @@ const socialCommentsElement = bigPictureElement.querySelector('.social__comments
 const commentCountElement = bigPictureElement.querySelector('.social__comment-count');
 const commentsLoaderElement = bigPictureElement.querySelector('.comments-loader');
 
-let escKeyDownHandler = null; // объявляем глобально
-let cancelButtonHandler = null; // объявляем глобально
+// Объявляем переменные в начале модуля
+let escKeyDownHandler = null;
+let cancelButtonHandler = null;
+
+// Переносим объявление hideBigPicture перед её использованием
+const hideBigPicture = () => {
+  bigPictureElement.classList.add('hidden');
+  bodyElement.classList.remove('modal-open');
+
+  if (escKeyDownHandler) {
+    document.removeEventListener('keydown', escKeyDownHandler);
+    escKeyDownHandler = null;
+  }
+
+  if (cancelButtonHandler) {
+    closeButtonElement.removeEventListener('click', cancelButtonHandler);
+    cancelButtonHandler = null;
+  }
+};
 
 const createCommentElement = ({avatar, name, message}) => {
   const comment = document.createElement('li');
@@ -49,7 +66,7 @@ const showBigPicture = (pictureData) => {
   bigPictureElement.classList.remove('hidden');
   bodyElement.classList.add('modal-open');
 
-  // Создаем обработчики внутри showBigPicture
+  // Теперь hideBigPicture уже объявлена и может быть использована
   escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
@@ -63,21 +80,6 @@ const showBigPicture = (pictureData) => {
 
   document.addEventListener('keydown', escKeyDownHandler);
   closeButtonElement.addEventListener('click', cancelButtonHandler);
-};
-
-const hideBigPicture = () => {
-  bigPictureElement.classList.add('hidden');
-  bodyElement.classList.remove('modal-open');
-
-  if (escKeyDownHandler) {
-    document.removeEventListener('keydown', escKeyDownHandler);
-    escKeyDownHandler = null;
-  }
-
-  if (cancelButtonHandler) {
-    closeButtonElement.removeEventListener('click', cancelButtonHandler);
-    cancelButtonHandler = null;
-  }
 };
 
 export { showBigPicture };
