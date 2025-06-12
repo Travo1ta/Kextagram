@@ -1,3 +1,5 @@
+import {isEscapeKey,} from './utils.js';
+
 const bigPictureElement = document.querySelector('.big-picture');
 const bodyElement = document.body;
 const closeButtonElement = bigPictureElement.querySelector('.big-picture__cancel');
@@ -13,7 +15,7 @@ const commentsLoaderElement = bigPictureElement.querySelector('.comments-loader'
 let escKeyDownHandler = null;
 let cancelButtonHandler = null;
 
-// Переносим объявление hideBigPicture перед её использованием
+
 const hideBigPicture = () => {
   bigPictureElement.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
@@ -29,7 +31,7 @@ const hideBigPicture = () => {
   }
 };
 
-const createCommentElement = ({avatar, name, message}) => {
+const createCommentElement = ({ avatar, name, message }) => {
   const comment = document.createElement('li');
   comment.classList.add('social__comment');
 
@@ -48,7 +50,7 @@ const renderComments = (comments) => {
   });
 };
 
-const renderPictureDetails = ({url, likes, comments, description}) => {
+const renderPictureDetails = ({ url, likes, comments, description }) => {
   bigPictureImgElement.src = url;
   bigPictureImgElement.alt = description;
   likesCountElement.textContent = likes;
@@ -66,9 +68,8 @@ const showBigPicture = (pictureData) => {
   bigPictureElement.classList.remove('hidden');
   bodyElement.classList.add('modal-open');
 
-  // Теперь hideBigPicture уже объявлена и может быть использована
   escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey) {
       evt.preventDefault();
       hideBigPicture();
     }

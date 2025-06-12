@@ -28,6 +28,10 @@ const getRandomNum = (start, end) => {
 
 const getRandomArrayElement = (array) => array[getRandomNum(0, array.length - 1)];
 
+//функция  проверки нажатой клавиши 'Escape'
+
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
 //Функция для проверки максимальной длины строки.
 
 //const isLengthLimit = (string, maxLength) =>  string.length <= maxLength;
@@ -38,4 +42,5 @@ const getRandomArrayElement = (array) => array[getRandomNum(0, array.length - 1)
 export {
   getRandomNum,
   getRandomArrayElement,
+  isEscapeKey,
 };
