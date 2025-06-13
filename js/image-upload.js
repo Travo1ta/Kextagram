@@ -9,10 +9,10 @@ const MAX_DESCRIPTION_LENGTH = 140;
 const SCALE_STEP = 25;
 const MIN_SCALE = 25;
 const MAX_SCALE = 100;
-const DEFAULT_SCALE = 100;
+const DEFAULT_SCALE = 55; // Соответствует значению 55% из вашей разметки
 
-// DOM элементы
-const uploadForm = document.querySelector('.img-upload__form');
+// Получаем элементы из вашей HTML-разметки
+const uploadForm = document.querySelector('#upload-select-image'); // ID формы из HTML
 const uploadInput = document.querySelector('#upload-file');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
 const uploadCancel = document.querySelector('#upload-cancel');
@@ -31,20 +31,22 @@ const effectsList = document.querySelector('.effects__list');
 let currentScale = DEFAULT_SCALE;
 let currentEffect = 'none';
 
-// Инициализация Pristine
+// Инициализация Pristine с классами из вашей разметки
 const pristine = new Pristine(uploadForm, {
-  classTo: 'img-upload__field-wrapper',
-  errorTextParent: 'img-upload__field-wrapper',
-  errorTextClass: 'img-upload__field-wrapper--error',
-  errorTextTag: 'div'
+  classTo: 'img-upload__field-wrapper', // Родительский контейнер для стилей ошибок
+  errorTextParent: 'img-upload__field-wrapper', // Куда вставлять текст ошибки
+  errorTextClass: 'text-help', // Класс для текста ошибки (должен быть в CSS)
+  errorTextTag: 'div' // Тег для сообщения об ошибке
 });
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ========== //
+// ===== ФУНКЦИИ ===== //
 
+// Проверка фокуса в полях ввода
 const isTextFieldFocused = () =>
   document.activeElement === textHashtags ||
   document.activeElement === textDescription;
 
+// Обработчик клавиши Esc
 const onDocumentKeydown = (evt) => {
   if (isEscapeKey(evt) && !isTextFieldFocused()) {
     evt.preventDefault();
@@ -52,26 +54,35 @@ const onDocumentKeydown = (evt) => {
   }
 };
 
-// ========== ОСНОВНЫЕ ФУНКЦИИ ========== //
-
+// Закрытие формы
 const closeUploadForm = () => {
   uploadOverlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
   uploadForm.reset();
   pristine.reset();
-  effects.none();
+  resetEffects();
   updateScale(DEFAULT_SCALE);
   document.removeEventListener('keydown', onDocumentKeydown);
 };
 
-
+// Открытие формы
 const openUploadForm = () => {
   uploadOverlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
   document.addEventListener('keydown', onDocumentKeydown);
 };
 
-// Эффекты изображения
+// Сброс эффектов
+const resetEffects = () => {
+  effectLevel.classList.add('hidden');
+  imgPreview.style.filter = 'none';
+  imgPreview.className = '';
+  imgPreview.classList.add('effects__preview--none');
+  currentEffect = 'none';
+  document.querySelector('#effect-none').checked = true;
+};
+
+// Эффекты изображения (адаптированы под ваши классы)
 const effects = {
   none: () => {
     effectLevel.classList.add('hidden');
@@ -106,40 +117,41 @@ const effects = {
   }
 };
 
-// Валидация
+// Валидация хэштегов
 const validateHashtags = (value) => {
   const input = value.trim();
-  if (input === '') { return true; }
+  if (input === '') return true;
 
   const hashtags = input.split(/\s+/);
-  if (hashtags.length > MAX_HASHTAGS) { return false; }
+  if (hashtags.length > MAX_HASHTAGS) return false;
 
   const seen = new Set();
   for (const tag of hashtags) {
-    if (!HASHTAG_REGEX.test(tag)) { return false; }
+    if (!HASHTAG_REGEX.test(tag)) return false;
     const lowerTag = tag.toLowerCase();
-    if (seen.has(lowerTag)) { return false; }
+    if (seen.has(lowerTag)) return false;
     seen.add(lowerTag);
   }
   return true;
 };
 
+// Валидация комментария
 const validateDescription = (value) => value.length <= MAX_DESCRIPTION_LENGTH;
 
-// Масштабирование
+// Обновление масштаба
 const updateScale = (value) => {
   currentScale = value;
   scaleControlValue.value = `${value}%`;
   imgPreview.style.transform = `scale(${value / 100})`;
 };
 
-// ========== ИНИЦИАЛИЗАЦИЯ И ОБРАБОТЧИКИ ========== //
+// ===== ИНИЦИАЛИЗАЦИЯ ===== //
 
-// Добавление валидаторов
+// Добавляем валидаторы
 pristine.addValidator(
   textHashtags,
   validateHashtags,
-  'Некорректный хэштег. Формат: #хэштег (макс. 20 символов, не более 5 хэштегов)'
+  'Хэштег должен начинаться с #, содержать только буквы и цифры (макс. 20 символов)'
 );
 
 pristine.addValidator(
@@ -148,7 +160,17 @@ pristine.addValidator(
   `Комментарий не может быть длиннее ${MAX_DESCRIPTION_LENGTH} символов`
 );
 
-// Масштаб
+// Инициализация слайдера эффектов
+noUiSlider.create(effectLevelSlider, {
+  range: { min: 0, max: 1 },
+  start: 1,
+  step: 0.1,
+  connect: 'lower',
+});
+
+// ===== ОБРАБОТЧИКИ СОБЫТИЙ ===== //
+
+// Масштабирование
 scaleControlSmaller.addEventListener('click', () => {
   updateScale(Math.max(currentScale - SCALE_STEP, MIN_SCALE));
 });
@@ -175,6 +197,7 @@ effectsList.addEventListener('change', (evt) => {
   }
 });
 
+// Обновление интенсивности эффекта
 effectLevelSlider.noUiSlider.on('update', (_, handle, unencoded) => {
   effectLevelValue.value = unencoded[handle];
   effects[currentEffect](unencoded[handle]);
@@ -183,7 +206,7 @@ effectLevelSlider.noUiSlider.on('update', (_, handle, unencoded) => {
 // Загрузка файла
 uploadInput.addEventListener('change', () => {
   const file = uploadInput.files[0];
-  if (!file) { return; }
+  if (!file) return;
 
   const fileName = file.name.toLowerCase();
   const matches = FILE_TYPES.some((ext) => fileName.endsWith(ext));
@@ -206,40 +229,17 @@ uploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
   if (pristine.validate()) {
-    const formData = new FormData(evt.target);
-
-    fetch('https://example.com/upload', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => {
-        if (response.ok) {
-          closeUploadForm();
-        }
-      })
-      .catch(() => {
-        // Обработка ошибки
-      });
+    const formData = new FormData(uploadForm);
+    // Здесь должна быть реальная отправка на сервер
+    console.log('Форма валидна, данные:', Object.fromEntries(formData));
+    closeUploadForm();
   }
 });
 
 // Блокировка всплытия событий
-textHashtags.addEventListener('keydown', (evt) => {
-  evt.stopPropagation();
-});
-
-textDescription.addEventListener('keydown', (evt) => {
-  evt.stopPropagation();
-});
-
-// Инициализация слайдера
-noUiSlider.create(effectLevelSlider, {
-  range: { min: 0, max: 1 },
-  start: 1,
-  step: 0.1,
-  connect: 'lower',
-});
+textHashtags.addEventListener('keydown', (evt) => evt.stopPropagation());
+textDescription.addEventListener('keydown', (evt) => evt.stopPropagation());
 
 // Начальное состояние
-effects.none();
+resetEffects();
 updateScale(DEFAULT_SCALE);
