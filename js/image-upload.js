@@ -9,10 +9,10 @@ const MAX_DESCRIPTION_LENGTH = 140;
 const SCALE_STEP = 25;
 const MIN_SCALE = 25;
 const MAX_SCALE = 100;
-const DEFAULT_SCALE = 55; // Соответствует значению 55% из вашей разметки
+const DEFAULT_SCALE = 55;
 
-// Получаем элементы из вашей HTML-разметки
-const uploadForm = document.querySelector('#upload-select-image'); // ID формы из HTML
+// DOM элементы
+const uploadForm = document.querySelector('#upload-select-image');
 const uploadInput = document.querySelector('#upload-file');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
 const uploadCancel = document.querySelector('#upload-cancel');
@@ -31,27 +31,48 @@ const effectsList = document.querySelector('.effects__list');
 let currentScale = DEFAULT_SCALE;
 let currentEffect = 'none';
 
-// Инициализация Pristine с классами из вашей разметки
+// Инициализация Pristine
 const pristine = new Pristine(uploadForm, {
-  classTo: 'img-upload__field-wrapper', // Родительский контейнер для стилей ошибок
-  errorTextParent: 'img-upload__field-wrapper', // Куда вставлять текст ошибки
-  errorTextClass: 'text-help', // Класс для текста ошибки (должен быть в CSS)
-  errorTextTag: 'div' // Тег для сообщения об ошибке
+  classTo: 'img-upload__field-wrapper',
+  errorTextParent: 'img-upload__field-wrapper',
+  errorTextClass: 'text-help',
+  errorTextTag: 'div'
 });
 
 // ===== ФУНКЦИИ ===== //
 
 // Проверка фокуса в полях ввода
-const isTextFieldFocused = () =>
-  document.activeElement === textHashtags ||
-  document.activeElement === textDescription;
+const isTextFieldFocused = () => {
+  return document.activeElement === textHashtags ||
+         document.activeElement === textDescription;
+};
 
-// Обработчик клавиши Esc
+// Обработчик Esc
 const onDocumentKeydown = (evt) => {
-  if (isEscapeKey(evt) && !isTextFieldFocused()) {
-    evt.preventDefault();
-    closeUploadForm();
+  if (isEscapeKey(evt)) {
+    if (!isTextFieldFocused()) {
+      evt.preventDefault();
+      closeUploadForm();
+    }
+    // Если фокус в поле ввода - не закрываем форму
   }
+};
+
+// Блокировка Esc в полях ввода
+const blockEscInFields = (evt) => {
+  if (isEscapeKey(evt)) {
+    evt.stopPropagation();
+  }
+};
+
+// Сброс эффектов
+const resetEffects = () => {
+  effectLevel.classList.add('hidden');
+  imgPreview.style.filter = 'none';
+  imgPreview.className = '';
+  imgPreview.classList.add('effects__preview--none');
+  currentEffect = 'none';
+  document.querySelector('#effect-none').checked = true;
 };
 
 // Закрытие формы
@@ -59,6 +80,7 @@ const closeUploadForm = () => {
   uploadOverlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
   uploadForm.reset();
+  uploadInput.value = '';
   pristine.reset();
   resetEffects();
   updateScale(DEFAULT_SCALE);
@@ -72,17 +94,7 @@ const openUploadForm = () => {
   document.addEventListener('keydown', onDocumentKeydown);
 };
 
-// Сброс эффектов
-const resetEffects = () => {
-  effectLevel.classList.add('hidden');
-  imgPreview.style.filter = 'none';
-  imgPreview.className = '';
-  imgPreview.classList.add('effects__preview--none');
-  currentEffect = 'none';
-  document.querySelector('#effect-none').checked = true;
-};
-
-// Эффекты изображения (адаптированы под ваши классы)
+// Эффекты изображения
 const effects = {
   none: () => {
     effectLevel.classList.add('hidden');
@@ -145,9 +157,7 @@ const updateScale = (value) => {
   imgPreview.style.transform = `scale(${value / 100})`;
 };
 
-// ===== ИНИЦИАЛИЗАЦИЯ ===== //
-
-// Добавляем валидаторы
+// ===== ИНИЦИАЛИЗАЦИЯ ВАЛИДАТОРОВ ===== //
 pristine.addValidator(
   textHashtags,
   validateHashtags,
@@ -159,14 +169,6 @@ pristine.addValidator(
   validateDescription,
   `Комментарий не может быть длиннее ${MAX_DESCRIPTION_LENGTH} символов`
 );
-
-// Инициализация слайдера эффектов
-noUiSlider.create(effectLevelSlider, {
-  range: { min: 0, max: 1 },
-  start: 1,
-  step: 0.1,
-  connect: 'lower',
-});
 
 // ===== ОБРАБОТЧИКИ СОБЫТИЙ ===== //
 
@@ -197,7 +199,7 @@ effectsList.addEventListener('change', (evt) => {
   }
 });
 
-// Обновление интенсивности эффекта
+// Слайдер эффектов
 effectLevelSlider.noUiSlider.on('update', (_, handle, unencoded) => {
   effectLevelValue.value = unencoded[handle];
   effects[currentEffect](unencoded[handle]);
@@ -230,15 +232,41 @@ uploadForm.addEventListener('submit', (evt) => {
 
   if (pristine.validate()) {
     const formData = new FormData(uploadForm);
-    // Здесь должна быть реальная отправка на сервер
-    console.log('Форма валидна, данные:', Object.fromEntries(formData));
-    closeUploadForm();
+    fetch(uploadForm.action, {
+      method: uploadForm.method,
+      body: formData
+    })
+      .then((response) => {
+        if (response.ok) {
+          closeUploadForm();
+        }
+      })
+      .catch(() => {
+        // Обработка ошибки
+      });
   }
 });
 
-// Блокировка всплытия событий
-textHashtags.addEventListener('keydown', (evt) => evt.stopPropagation());
-textDescription.addEventListener('keydown', (evt) => evt.stopPropagation());
+// Блокировка Esc в полях ввода
+textHashtags.addEventListener('keydown', blockEscInFields);
+textDescription.addEventListener('keydown', blockEscInFields);
+
+// Live-валидация
+textHashtags.addEventListener('input', () => {
+  pristine.validate(textHashtags);
+});
+
+textDescription.addEventListener('input', () => {
+  pristine.validate(textDescription);
+});
+
+// ===== ИНИЦИАЛИЗАЦИЯ СЛАЙДЕРА ===== //
+noUiSlider.create(effectLevelSlider, {
+  range: { min: 0, max: 1 },
+  start: 1,
+  step: 0.1,
+  connect: 'lower',
+});
 
 // Начальное состояние
 resetEffects();
