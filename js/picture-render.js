@@ -3,22 +3,21 @@ import { showBigPicture } from './big-picture.js';
 const picturesContainer = document.querySelector('.pictures');
 
 //Функция для создания DOM-элемента одной фотографии
-const createPictureElement = ({ url, likes, comments, description }) => {
-
-  //Находим template
+const createPictureElement = ({ id, url, likes, comments, description }) => {
   const pictureTemplate = document.querySelector('#picture')
     .content
     .querySelector('.picture');
 
   const pictureElement = pictureTemplate.cloneNode(true);
 
+  // Добавляем data-id
+  pictureElement.dataset.id = id; // Эта строка критически важна!
+
   const pictureImage = pictureElement.querySelector('.picture__img');
   pictureImage.src = url;
   pictureImage.alt = description;
 
   pictureElement.querySelector('.picture__likes').textContent = likes;
-
-
   pictureElement.querySelector('.picture__comments').textContent = comments.length;
 
   // Добавляем обработчик клика по миниатюре

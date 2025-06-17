@@ -67,8 +67,7 @@ const createPicture = (id) => {
 const getPictures = () =>
   Array.from({ length: POST_COUNT }, (_, index) => createPicture(index + 1));
 
-// Генерация массива из 25 фотографий
-//const photosArray = getPictures();
+
 
 
 export {

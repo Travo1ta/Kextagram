@@ -1,4 +1,4 @@
-import {isEscapeKey,} from './utils.js';
+import {isEscapeKey} from './utils.js';
 
 const bigPictureElement = document.querySelector('.big-picture');
 const bodyElement = document.body;
@@ -20,15 +20,11 @@ const hideBigPicture = () => {
   bigPictureElement.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
 
-  if (escKeyDownHandler) {
-    document.removeEventListener('keydown', escKeyDownHandler);
-    escKeyDownHandler = null;
-  }
+  document.removeEventListener('keydown', escKeyDownHandler);
+  closeButtonElement.removeEventListener('click', cancelButtonHandler);
 
-  if (cancelButtonHandler) {
-    closeButtonElement.removeEventListener('click', cancelButtonHandler);
-    cancelButtonHandler = null;
-  }
+  escKeyDownHandler = null;
+  cancelButtonHandler = null;
 };
 
 const createCommentElement = ({ avatar, name, message }) => {
@@ -69,15 +65,13 @@ const showBigPicture = (pictureData) => {
   bodyElement.classList.add('modal-open');
 
   escKeyDownHandler = (evt) => {
-    if (isEscapeKey) {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       hideBigPicture();
     }
   };
 
-  cancelButtonHandler = () => {
-    hideBigPicture();
-  };
+  cancelButtonHandler = hideBigPicture;
 
   document.addEventListener('keydown', escKeyDownHandler);
   closeButtonElement.addEventListener('click', cancelButtonHandler);
