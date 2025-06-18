@@ -1,38 +1,33 @@
-
-
-// Получаем массив фотографий
-const pictures = getPictures();
-//console.log(pictures);
-
-// Отрисовываем фотографии
-renderPictures(pictures);
-
-
 import { renderPictures } from './picture-render.js';
 import { getPictures } from './data.js';
-import { initUploadForm, closeUploadForm } from './form-validation.js';
-import { initEffects, initScale, resetEffects, DEFAULT_SCALE } from './image-effects.js';
+import { initFormValidation } from './form-validation.js';
+import { initEffects, initScale, resetEffects } from './image-effects.js';
 import { showBigPicture } from './big-picture.js';
 
 // Инициализация приложения
 const initApp = () => {
-  // 1. Загрузка и отрисовка моковых данных
+  // 1. Загрузка и отрисовка данных
   const picturesData = getPictures();
   renderPictures(picturesData);
 
-  // 2. Инициализация формы загрузки изображения
-  initUploadForm();
-
-  // 3. Инициализация эффектов и масштабирования
+  // 2. Инициализация редактора изображений
   initScale();
   initEffects();
   resetEffects();
-  updateScale(DEFAULT_SCALE); // Из image-effects.js
 
-  // 4. Дополнительные обработчики (если нужно)
-  document.addEventListener('keydown', (evt) => {
-    if (isEscapeKey(evt)) {
-      closeUploadForm();
+  // 3. Инициализация формы
+  initFormValidation();
+
+  // 4. Делегирование событий для просмотра фото
+  document.querySelector('.pictures').addEventListener('click', (evt) => {
+    const pictureElement = evt.target.closest('.picture');
+    if (pictureElement) {
+      const pictureData = picturesData.find(
+        (item) => item.id === parseInt(pictureElement.dataset.id, 10)
+      );
+      if (pictureData) {
+        showBigPicture(pictureData);
+      }
     }
   });
 };
@@ -40,5 +35,5 @@ const initApp = () => {
 // Запуск приложения после загрузки DOM
 document.addEventListener('DOMContentLoaded', initApp);
 
-// Экспорт для тестов (если требуется)
+// Экспорт для тестирования
 export { initApp };

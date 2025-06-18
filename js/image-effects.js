@@ -1,71 +1,82 @@
+const noUiSlider = window.noUiSlider;
+
 // Константы
 const SCALE_STEP = 25;
 const MIN_SCALE = 25;
 const MAX_SCALE = 100;
-const DEFAULT_SCALE = 55;
+const DEFAULT_SCALE = 100;
 
 // DOM элементы
 const imgPreview = document.querySelector('.img-upload__preview img');
 const scaleControlSmaller = document.querySelector('.scale__control--smaller');
 const scaleControlBigger = document.querySelector('.scale__control--bigger');
 const scaleControlValue = document.querySelector('.scale__control--value');
-const effectLevel = document.querySelector('.effect-level');
 const effectLevelSlider = document.querySelector('.effect-level__slider');
 const effectLevelValue = document.querySelector('.effect-level__value');
 const effectsList = document.querySelector('.effects__list');
 
-// Состояние
-let currentScale = DEFAULT_SCALE;
+// Текущие настройки
 let currentEffect = 'none';
+
+// Инициализация слайдера
+const initSlider = () => {
+  if (!effectLevelSlider) return;
+
+  noUiSlider.create(effectLevelSlider, {
+    range: {
+      min: 0,
+      max: 1
+    },
+    start: 1,
+    step: 0.1,
+    connect: 'lower'
+  });
+
+  effectLevelSlider.noUiSlider.on('update', (_, handle, unencoded) => {
+    effectLevelValue.value = unencoded[handle];
+    applyEffect(unencoded[handle]);
+  });
+};
+
+// Применение эффекта
+const applyEffect = (value) => {
+  let filterStyle = '';
+
+  switch (currentEffect) {
+    case 'chrome':
+      filterStyle = `grayscale(${value})`;
+      break;
+    case 'sepia':
+      filterStyle = `sepia(${value})`;
+      break;
+    case 'marvin':
+      filterStyle = `invert(${value * 100}%)`;
+      break;
+    case 'phobos':
+      filterStyle = `blur(${value * 3}px)`;
+      break;
+    case 'heat':
+      filterStyle = `brightness(${1 + value * 2})`;
+      break;
+    default:
+      filterStyle = 'none';
+  }
+
+  imgPreview.style.filter = filterStyle;
+};
 
 // Сброс эффектов
 const resetEffects = () => {
-  effectLevel.classList.add('hidden');
-  imgPreview.style.filter = 'none';
-  imgPreview.className = '';
-  imgPreview.classList.add('effects__preview--none');
   currentEffect = 'none';
-  document.querySelector('#effect-none').checked = true;
-};
-
-// Эффекты изображения
-const effects = {
-  none: () => {
-    effectLevel.classList.add('hidden');
-    imgPreview.style.filter = 'none';
-    imgPreview.className = '';
-    imgPreview.classList.add('effects__preview--none');
-  },
-  chrome: (value) => {
-    imgPreview.style.filter = `grayscale(${value})`;
-    imgPreview.className = '';
-    imgPreview.classList.add('effects__preview--chrome');
-  },
-  sepia: (value) => {
-    imgPreview.style.filter = `sepia(${value})`;
-    imgPreview.className = '';
-    imgPreview.classList.add('effects__preview--sepia');
-  },
-  marvin: (value) => {
-    imgPreview.style.filter = `invert(${value * 100}%)`;
-    imgPreview.className = '';
-    imgPreview.classList.add('effects__preview--marvin');
-  },
-  phobos: (value) => {
-    imgPreview.style.filter = `blur(${value * 3}px)`;
-    imgPreview.className = '';
-    imgPreview.classList.add('effects__preview--phobos');
-  },
-  heat: (value) => {
-    imgPreview.style.filter = `brightness(${value * 3})`;
-    imgPreview.className = '';
-    imgPreview.classList.add('effects__preview--heat');
+  imgPreview.style.filter = 'none';
+  effectLevelValue.value = '';
+  if (effectLevelSlider.noUiSlider) {
+    effectLevelSlider.noUiSlider.destroy();
   }
 };
 
 // Обновление масштаба
 const updateScale = (value) => {
-  currentScale = value;
   scaleControlValue.value = `${value}%`;
   imgPreview.style.transform = `scale(${value / 100})`;
 };
@@ -73,55 +84,47 @@ const updateScale = (value) => {
 // Инициализация масштабирования
 const initScale = () => {
   scaleControlSmaller.addEventListener('click', () => {
-    updateScale(Math.max(currentScale - SCALE_STEP, MIN_SCALE));
+    const currentValue = parseInt(scaleControlValue.value, 10);
+    const newValue = Math.max(currentValue - SCALE_STEP, MIN_SCALE);
+    updateScale(newValue);
   });
 
   scaleControlBigger.addEventListener('click', () => {
-    updateScale(Math.min(currentScale + SCALE_STEP, MAX_SCALE));
+    const currentValue = parseInt(scaleControlValue.value, 10);
+    const newValue = Math.min(currentValue + SCALE_STEP, MAX_SCALE);
+    updateScale(newValue);
   });
 };
 
 // Инициализация эффектов
 const initEffects = () => {
+  if (!effectsList) return;
+
   effectsList.addEventListener('change', (evt) => {
-    if (evt.target.matches('input[type="radio"]')) {
-      currentEffect = evt.target.value;
-      if (currentEffect === 'none') {
-        effects.none();
-      } else {
-        effectLevel.classList.remove('hidden');
-        effectLevelSlider.noUiSlider.updateOptions({
-          range: { min: 0, max: 1 },
-          start: 1,
-          step: 0.1,
-        });
-        effects[currentEffect](1);
+    if (!evt.target.matches('input[type="radio"]')) return;
+
+    currentEffect = evt.target.value;
+
+    if (currentEffect === 'none') {
+      resetEffects();
+    } else {
+      if (!effectLevelSlider.noUiSlider) {
+        initSlider();
       }
+      effectLevelSlider.noUiSlider.updateOptions({
+        range: { min: 0, max: 1 },
+        start: 1,
+        step: 0.1
+      });
     }
   });
-
-  effectLevelSlider.noUiSlider.on('update', (_, handle, unencoded) => {
-    effectLevelValue.value = unencoded[handle];
-    effects[currentEffect](unencoded[handle]);
-  });
 };
 
-// Инициализация слайдера
-const initSlider = () => {
-  noUiSlider.create(effectLevelSlider, {
-    range: { min: 0, max: 1 },
-    start: 1,
-    step: 0.1,
-    connect: 'lower',
-  });
-};
-
-// Экспорт функций
 export {
-  resetEffects,
-  updateScale,
   initScale,
   initEffects,
-  initSlider,
-  DEFAULT_SCALE
+  resetEffects,
+  updateScale,
+  DEFAULT_SCALE,
+  initSlider
 };

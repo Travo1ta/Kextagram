@@ -1,137 +1,108 @@
 import { isEscapeKey } from './utils.js';
 
-// Константы для валидации
+// Константы
 const MAX_HASHTAGS = 5;
-const MAX_HASHTAG_LENGTH = 20;
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 const MAX_DESCRIPTION_LENGTH = 140;
 
-// Получаем все необходимые DOM-элементы
-const uploadForm = document.querySelector('.img-upload__form');
-const uploadInput = document.querySelector('#upload-file');
-const uploadOverlay = document.querySelector('.img-upload__overlay');
-const uploadCancel = document.querySelector('#upload-cancel');
-const textHashtags = uploadForm.querySelector('.text__hashtags');
-const textDescription = uploadForm.querySelector('.text__description');
-const uploadSubmit = uploadForm.querySelector('.img-upload__submit');
+// DOM элементы
+const form = document.querySelector('.img-upload__form');
+const fileInput = document.querySelector('#upload-file');
+const cancelButton = document.querySelector('#upload-cancel');
+const overlay = document.querySelector('.img-upload__overlay');
+const hashtagInput = form.querySelector('.text__hashtags');
+const descriptionInput = form.querySelector('.text__description');
+const submitButton = form.querySelector('.img-upload__submit');
 
 // Инициализация Pristine
-const pristine = new Pristine(uploadForm, {
+const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper',
-  errorTextClass: 'text-help',
+  errorTextClass: 'img-upload__error-text',
   errorTextTag: 'div'
 });
 
-// Проверка фокуса в полях ввода
-const isTextFieldFocused = () =>
-  document.activeElement === textHashtags ||
-  document.activeElement === textDescription;
-
-// Функция закрытия формы
-const closeUploadForm = () => {
-  uploadOverlay.classList.add('hidden');
-  document.body.classList.remove('modal-open');
-  document.removeEventListener('keydown', onDocumentKeydown);
-  uploadForm.reset();
-  pristine.reset();
-};
-
-// Обработчик Esc
-const onDocumentKeydown = (evt) => {
-  if (isEscapeKey(evt) && !isTextFieldFocused()) {
-    evt.preventDefault();
-    closeUploadForm();
-  }
-};
-
-// Блокировка Esc в полях ввода
-const blockEscInFields = (evt) =>
-  isEscapeKey(evt) && evt.stopPropagation();
-
-// Валидация хэштегов
-const validateHashtags = (value) => {
-  const input = value.trim().toLowerCase();
-  if (input === '') return true;
-
-  const hashtags = input.split(/\s+/);
-
-  if (hashtags.length > MAX_HASHTAGS) {
-    return false;
-  }
-
-  const uniqueTags = new Set();
-
-  for (const tag of hashtags) {
-    if (!HASHTAG_REGEX.test(tag)) {
-      return false;
-    }
-
-    if (uniqueTags.has(tag)) {
-      return false;
-    }
-    uniqueTags.add(tag);
-  }
-
-  return true;
-};
-
-// Валидация описания
-const validateDescription = (value) => {
-  return value.length <= MAX_DESCRIPTION_LENGTH;
-};
-
-// Добавляем валидаторы
-pristine.addValidator(
-  textHashtags,
-  validateHashtags,
-  `Допустимо до ${MAX_HASHTAGS} уникальных хэштегов, начинающихся с # (макс. ${MAX_HASHTAG_LENGTH} символов)`
-);
-
-pristine.addValidator(
-  textDescription,
-  validateDescription,
-  `Комментарий не может быть длиннее ${MAX_DESCRIPTION_LENGTH} символов`
-);
-
-// Блокировка кнопки при отправке
-const toggleSubmitButton = (isDisabled) => {
-  uploadSubmit.disabled = isDisabled;
-  uploadSubmit.textContent = isDisabled ? 'Публикация...' : 'Опубликовать';
-};
-
-// Функция открытия формы
-const openUploadForm = () => {
-  uploadOverlay.classList.remove('hidden');
+// Функции управления формой
+const showModal = () => {
+  overlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
   document.addEventListener('keydown', onDocumentKeydown);
 };
 
-// Обработчики событий
-uploadInput.addEventListener('change', openUploadForm);
-uploadCancel.addEventListener('click', closeUploadForm);
-textHashtags.addEventListener('keydown', blockEscInFields);
-textDescription.addEventListener('keydown', blockEscInFields);
-
-// Обработчик отправки формы
-uploadForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-
-  const isValid = pristine.validate();
-
-  if (isValid) {
-    toggleSubmitButton(true);
-    // Здесь будет код отправки формы
-    setTimeout(() => {
-      toggleSubmitButton(false);
-      closeUploadForm();
-    }, 2000);
-  }
-});
-
-// Экспорт
-export {
-  pristine,
-  closeUploadForm,
-  openUploadForm
+const hideModal = () => {
+  form.reset();
+  pristine.reset();
+  overlay.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+  document.removeEventListener('keydown', onDocumentKeydown);
 };
+
+const isTextFieldFocused = () =>
+  document.activeElement === hashtagInput ||
+  document.activeElement === descriptionInput;
+
+const onDocumentKeydown = (evt) => {
+  if (isEscapeKey(evt) && !isTextFieldFocused()) {
+    evt.preventDefault();
+    hideModal();
+  }
+};
+
+// Валидация хэштегов
+const validateHashtags = (value) => {
+  const hashtags = value.trim() ? value.toLowerCase().split(/\s+/) : [];
+
+  if (hashtags.length > MAX_HASHTAGS) return false;
+
+  const uniqueTags = new Set(hashtags);
+  if (uniqueTags.size !== hashtags.length) return false;
+
+  return hashtags.every((tag) => HASHTAG_REGEX.test(tag));
+};
+
+// Валидация описания
+const validateDescription = (value) =>
+  value.length <= MAX_DESCRIPTION_LENGTH;
+
+// Добавление валидаторов
+pristine.addValidator(
+  hashtagInput,
+  validateHashtags,
+  `До ${MAX_HASHTAGS} уникальных хэштегов, разделенных пробелами`
+);
+
+pristine.addValidator(
+  descriptionInput,
+  validateDescription,
+  `Максимум ${MAX_DESCRIPTION_LENGTH} символов`
+);
+
+// Блокировка Esc в полях ввода
+const blockEscInFields = (evt) => {
+  if (isEscapeKey(evt)) {
+    evt.stopPropagation();
+  }
+};
+
+// Инициализация формы
+const initFormValidation = () => {
+  fileInput.addEventListener('change', () => {
+    showModal();
+  });
+
+  cancelButton.addEventListener('click', hideModal);
+
+  hashtagInput.addEventListener('keydown', blockEscInFields);
+  descriptionInput.addEventListener('keydown', blockEscInFields);
+
+  form.addEventListener('submit', (evt) => {
+    if (!pristine.validate()) {
+      evt.preventDefault();
+      hashtagInput.classList.add('img-upload__input--error');
+    } else {
+      submitButton.disabled = true;
+    }
+  });
+};
+
+export { initFormValidation, hideModal };
