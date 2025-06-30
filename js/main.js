@@ -1,39 +1,47 @@
 import { renderPictures } from './picture-render.js';
 import { getPictures } from './data.js';
 import { initFormValidation } from './form-validation.js';
-import { initEffects, initScale, resetEffects } from './image-effects.js';
+import { initEffects, resetEffects } from './image-effects.js';
 import { showBigPicture } from './big-picture.js';
 
-// Инициализация приложения
 const initApp = () => {
-  // 1. Загрузка и отрисовка данных
+  // 1. Получаем элементы с учетом их реальных классов
+  const uploadCancel = document.querySelector('.img-upload__cancel'); // Используем класс
+  const picturesContainer = document.querySelector('.pictures');
+
+  // 2. Проверка существования элементов
+  if (!uploadCancel) {
+    console.error('Не найдена кнопка закрытия! Ищем:', '.img-upload__cancel');
+  }
+  if (!picturesContainer) {
+    console.error('Не найден контейнер фотографий!');
+  }
+
+  // 3. Загрузка данных и инициализация
   const picturesData = getPictures();
-  renderPictures(picturesData);
-
-  // 2. Инициализация редактора изображений
-  initScale();
+  //renderPictures(picturesData);
   initEffects();
-  resetEffects();
-
-  // 3. Инициализация формы
   initFormValidation();
 
-  // 4. Делегирование событий для просмотра фото
-  document.querySelector('.pictures').addEventListener('click', (evt) => {
-    const pictureElement = evt.target.closest('.picture');
-    if (pictureElement) {
-      const pictureData = picturesData.find(
-        (item) => item.id === parseInt(pictureElement.dataset.id, 10)
-      );
-      if (pictureData) {
-        showBigPicture(pictureData);
+  // 4. Обработчики событий (только если элементы найдены)
+  if (picturesContainer) {
+    picturesContainer.addEventListener('click', (evt) => {
+      const picture = evt.target.closest('.picture');
+      if (picture) {
+        const pictureData = picturesData.find(item => item.id === parseInt(picture.dataset.id, 10));
+        pictureData && showBigPicture(pictureData);
       }
-    }
-  });
+    });
+  }
+
+  if (uploadCancel) {
+    uploadCancel.addEventListener('click', resetEffects);
+  }
 };
 
-// Запуск приложения после загрузки DOM
-document.addEventListener('DOMContentLoaded', initApp);
-
-// Экспорт для тестирования
-export { initApp };
+// Альтернативный запуск для надежности
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}

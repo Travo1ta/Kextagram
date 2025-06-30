@@ -1,9 +1,9 @@
-/*! nouislider - 15.6.0 - 05/01/2022 */
+/*! nouislider - 15.5.0 - 10/09/2021 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.noUiSlider = {}));
-})(this, (function (exports) { 'use strict';
+}(this, (function (exports) { 'use strict';
 
   exports.PipsMode = void 0;
   (function (PipsMode) {
@@ -128,7 +128,7 @@
               : doc.body.scrollTop;
       return {
           x: x,
-          y: y,
+          y: y
       };
   }
   // we provide a function to compute constants instead
@@ -141,18 +141,18 @@
           ? {
               start: "pointerdown",
               move: "pointermove",
-              end: "pointerup",
+              end: "pointerup"
           }
           : window.navigator.msPointerEnabled
               ? {
                   start: "MSPointerDown",
                   move: "MSPointerMove",
-                  end: "MSPointerUp",
+                  end: "MSPointerUp"
               }
               : {
                   start: "mousedown touchstart",
                   move: "mousemove touchmove",
-                  end: "mouseup touchend",
+                  end: "mouseup touchend"
               };
   }
   // https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
@@ -164,7 +164,7 @@
           var opts = Object.defineProperty({}, "passive", {
               get: function () {
                   supportsPassive = true;
-              },
+              }
           });
           // @ts-ignore
           window.addEventListener("test", null, opts);
@@ -385,18 +385,18 @@
               stepBefore: {
                   startValue: this.xVal[j - 2],
                   step: this.xNumSteps[j - 2],
-                  highestStep: this.xHighestCompleteStep[j - 2],
+                  highestStep: this.xHighestCompleteStep[j - 2]
               },
               thisStep: {
                   startValue: this.xVal[j - 1],
                   step: this.xNumSteps[j - 1],
-                  highestStep: this.xHighestCompleteStep[j - 1],
+                  highestStep: this.xHighestCompleteStep[j - 1]
               },
               stepAfter: {
                   startValue: this.xVal[j],
                   step: this.xNumSteps[j],
-                  highestStep: this.xHighestCompleteStep[j],
-              },
+                  highestStep: this.xHighestCompleteStep[j]
+              }
           };
       };
       Spectrum.prototype.countStepDecimals = function () {
@@ -482,7 +482,7 @@
       to: function (value) {
           return value === undefined ? "" : value.toFixed(2);
       },
-      from: Number,
+      from: Number
   };
   var cssClasses = {
       target: "target",
@@ -520,12 +520,12 @@
       valueVertical: "value-vertical",
       valueNormal: "value-normal",
       valueLarge: "value-large",
-      valueSub: "value-sub",
+      valueSub: "value-sub"
   };
   // Namespaces of internal event listeners
   var INTERNAL_EVENT_NS = {
       tooltips: ".__tooltips",
-      aria: ".__aria",
+      aria: ".__aria"
   };
   //endregion
   function testStep(parsed, entry) {
@@ -715,7 +715,6 @@
       var hover = entry.indexOf("hover") >= 0;
       var unconstrained = entry.indexOf("unconstrained") >= 0;
       var dragAll = entry.indexOf("drag-all") >= 0;
-      var smoothSteps = entry.indexOf("smooth-steps") >= 0;
       if (fixed) {
           if (parsed.handles !== 2) {
               throw new Error("noUiSlider: 'fixed' behaviour must be used with 2 handles");
@@ -730,11 +729,10 @@
           tap: tap || snap,
           drag: drag,
           dragAll: dragAll,
-          smoothSteps: smoothSteps,
           fixed: fixed,
           snap: snap,
           hover: hover,
-          unconstrained: unconstrained,
+          unconstrained: unconstrained
       };
   }
   function testTooltips(parsed, entry) {
@@ -820,7 +818,7 @@
           animate: true,
           animationDuration: 300,
           ariaFormat: defaultFormatter,
-          format: defaultFormatter,
+          format: defaultFormatter
       };
       // Tests are executed in the order they are presented here.
       var tests = {
@@ -847,7 +845,7 @@
           documentElement: { r: false, t: testDocumentElement },
           cssPrefix: { r: true, t: testCssPrefix },
           cssClasses: { r: true, t: testCssClasses },
-          handleAttributes: { r: false, t: testHandleAttributes },
+          handleAttributes: { r: false, t: testHandleAttributes }
       };
       var defaults = {
           connect: false,
@@ -859,7 +857,7 @@
           cssClasses: cssClasses,
           keyboardPageMultiplier: 5,
           keyboardMultiplier: 1,
-          keyboardDefaultStep: 10,
+          keyboardDefaultStep: 10
       };
       // AriaFormat defaults to regular format, if any.
       if (options.format && !options.ariaFormat) {
@@ -891,7 +889,7 @@
       // Pips don't move, so we can place them using left/top.
       var styles = [
           ["left", "top"],
-          ["right", "bottom"],
+          ["right", "bottom"]
       ];
       parsed.style = styles[parsed.dir][parsed.ort];
       return parsed;
@@ -1276,7 +1274,7 @@
           var format = pips.format || {
               to: function (value) {
                   return String(Math.round(value));
-              },
+              }
           };
           scope_Pips = scope_Target.appendChild(addMarking(spread, filter, format));
           return scope_Pips;
@@ -1475,14 +1473,6 @@
                   scope_Body.removeEventListener("selectstart", preventDefault);
               }
           }
-          if (options.events.smoothSteps) {
-              data.handleNumbers.forEach(function (handleNumber) {
-                  setHandle(handleNumber, scope_Locations[handleNumber], true, true, false, false);
-              });
-              data.handleNumbers.forEach(function (handleNumber) {
-                  fireEvent("update", handleNumber);
-              });
-          }
           data.handleNumbers.forEach(function (handleNumber) {
               fireEvent("change", handleNumber);
               fireEvent("set", handleNumber);
@@ -1520,21 +1510,21 @@
               pageOffset: event.pageOffset,
               handleNumbers: data.handleNumbers,
               buttonsProperty: event.buttons,
-              locations: scope_Locations.slice(),
+              locations: scope_Locations.slice()
           });
           var endEvent = attachEvent(actions.end, scope_DocumentElement, eventEnd, {
               target: event.target,
               handle: handle,
               listeners: listeners,
               doNotReject: true,
-              handleNumbers: data.handleNumbers,
+              handleNumbers: data.handleNumbers
           });
           var outEvent = attachEvent("mouseout", scope_DocumentElement, documentLeave, {
               target: event.target,
               handle: handle,
               listeners: listeners,
               doNotReject: true,
-              handleNumbers: data.handleNumbers,
+              handleNumbers: data.handleNumbers
           });
           // We want to make sure we pushed the listeners in the listener list rather than creating
           // a new one as it has already been passed to the event handlers.
@@ -1679,7 +1669,7 @@
                   // These events are only bound to the visual handle
                   // element, not the 'real' origin element.
                   attachEvent(actions.start, handle.children[0], eventStart, {
-                      handleNumbers: [index],
+                      handleNumbers: [index]
                   });
               });
           }
@@ -1690,7 +1680,7 @@
           // Fire hover events
           if (behaviour.hover) {
               attachEvent(actions.move, scope_Base, eventHover, {
-                  hover: true,
+                  hover: true
               });
           }
           // Make the range draggable.
@@ -1721,7 +1711,7 @@
                       attachEvent(actions.start, eventHolder, eventStart, {
                           handles: handlesToDrag,
                           handleNumbers: handleNumbersToDrag,
-                          connect: connect,
+                          connect: connect
                       });
                   });
               });
@@ -1782,7 +1772,7 @@
           });
       }
       // Split out the handle positioning logic so the Move event can use it, too
-      function checkHandlePosition(reference, handleNumber, to, lookBackward, lookForward, getValue, smoothSteps) {
+      function checkHandlePosition(reference, handleNumber, to, lookBackward, lookForward, getValue) {
           var distance;
           // For sliders with multiple handles, limit movement to the other handle.
           // Apply the margin option by adding it to the handle positions.
@@ -1821,9 +1811,7 @@
                   to = Math.min(to, distance);
               }
           }
-          if (!smoothSteps) {
-              to = scope_Spectrum.getStep(to);
-          }
+          to = scope_Spectrum.getStep(to);
           // Limit percentage to the 0 - 100 range
           to = limit(to);
           // Return false if handle can't move
@@ -1843,7 +1831,6 @@
           var proposals = locations.slice();
           // Store first handle now, so we still have it in case handleNumbers is reversed
           var firstHandle = handleNumbers[0];
-          var smoothSteps = options.events.smoothSteps;
           var b = [!upward, upward];
           var f = [upward, !upward];
           // Copy handleNumbers so we don't change the dataset
@@ -1856,7 +1843,7 @@
           // Step 1: get the maximum percentage that any of the handles can move
           if (handleNumbers.length > 1) {
               handleNumbers.forEach(function (handleNumber, o) {
-                  var to = checkHandlePosition(proposals, handleNumber, proposals[handleNumber] + proposal, b[o], f[o], false, smoothSteps);
+                  var to = checkHandlePosition(proposals, handleNumber, proposals[handleNumber] + proposal, b[o], f[o], false);
                   // Stop if one of the handles can't move.
                   if (to === false) {
                       proposal = 0;
@@ -1874,8 +1861,7 @@
           var state = false;
           // Step 2: Try to set the handles with the found percentage
           handleNumbers.forEach(function (handleNumber, o) {
-              state =
-                  setHandle(handleNumber, locations[handleNumber] + proposal, b[o], f[o], false, smoothSteps) || state;
+              state = setHandle(handleNumber, locations[handleNumber] + proposal, b[o], f[o]) || state;
           });
           // Step 3: If a handle moved, fire events
           if (state) {
@@ -1920,9 +1906,9 @@
       }
       // Test suggested values and apply margin, step.
       // if exactInput is true, don't run checkHandlePosition, then the handle can be placed in between steps (#436)
-      function setHandle(handleNumber, to, lookBackward, lookForward, exactInput, smoothSteps) {
+      function setHandle(handleNumber, to, lookBackward, lookForward, exactInput) {
           if (!exactInput) {
-              to = checkHandlePosition(scope_Locations, handleNumber, to, lookBackward, lookForward, false, smoothSteps);
+              to = checkHandlePosition(scope_Locations, handleNumber, to, lookBackward, lookForward, false);
           }
           if (to === false) {
               return false;
@@ -2074,7 +2060,7 @@
           if (options.snap) {
               return [
                   value - nearbySteps.stepBefore.startValue || null,
-                  nearbySteps.stepAfter.startValue - value || null,
+                  nearbySteps.stepAfter.startValue - value || null
               ];
           }
           // If the next value in this step moves into the next step,
@@ -2133,7 +2119,7 @@
               "step",
               "format",
               "pips",
-              "tooltips",
+              "tooltips"
           ];
           // Only change options that we're actually passed to update.
           updateAble.forEach(function (name) {
@@ -2218,7 +2204,7 @@
           getOrigins: function () {
               return scope_Handles;
           },
-          pips: pips, // Issue #594
+          pips: pips // Issue #594
       };
       return scope_Self;
   }
@@ -2243,13 +2229,13 @@
       // A reference to the default classes, allows global changes.
       // Use the cssClasses option for changes to one slider.
       cssClasses: cssClasses,
-      create: initialize,
+      create: initialize
   };
 
   exports.create = initialize;
   exports.cssClasses = cssClasses;
-  exports["default"] = nouislider;
+  exports.default = nouislider;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
