@@ -1,4 +1,4 @@
-import noUiSlider from 'nouislider';
+const noUiSlider = window.noUiSlider;
 
 const EFFECTS = [
   {
