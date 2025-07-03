@@ -1,4 +1,6 @@
 const noUiSlider = window.noUiSlider;
+//import noUiSlider from '/vendor/nouislider/nouislider.js';
+
 
 const EFFECTS = [
   {
