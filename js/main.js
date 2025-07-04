@@ -19,7 +19,7 @@ const initApp = () => {
 
   // 3. Загрузка данных и инициализация
   const picturesData = getPictures();
-  //renderPictures(picturesData);
+  renderPictures(picturesData);
   initEffects();
   initFormValidation();
 
