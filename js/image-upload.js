@@ -1,4 +1,3 @@
-
 import { pristine, blockEscInFields, closeUploadForm, openUploadForm } from './form-validation.js';
 import { resetEffects, updateScale, initScale, initEffects, initSlider, DEFAULT_SCALE } from './image-effects.js';
 
@@ -10,6 +9,33 @@ const uploadForm = document.querySelector('#upload-select-image');
 const uploadInput = document.querySelector('#upload-file');
 const textHashtags = document.querySelector('.text__hashtags');
 const textDescription = document.querySelector('.text__description');
+const imgPreview = document.querySelector('.img-upload__preview img');
+const effectsPreviews = document.querySelectorAll('.effects__preview');
+
+// Сброс формы к исходному состоянию
+const resetForm = () => {
+  // Сброс полей формы
+  uploadForm.reset();
+
+  // Сброс масштаба к 100%
+  updateScale(DEFAULT_SCALE);
+
+  // Сброс эффекта на "Оригинал"
+  resetEffects();
+
+  // Очистка превью изображения
+  imgPreview.src = '';
+  imgPreview.style.transform = '';
+  imgPreview.style.filter = '';
+
+  // Очистка превью эффектов
+  effectsPreviews.forEach((preview) => {
+    preview.style.backgroundImage = '';
+  });
+
+  // Сброс валидации
+  pristine.reset();
+};
 
 // Инициализация
 const initUploadForm = () => {
@@ -45,32 +71,24 @@ const initUploadForm = () => {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         imgPreview.src = reader.result;
+
+        // Установка фона для превью эффектов
+        effectsPreviews.forEach((preview) => {
+          preview.style.backgroundImage = `url(${reader.result})`;
+        });
+
         openUploadForm();
       });
       reader.readAsDataURL(file);
     }
   });
 
-  // Отправка формы
-  uploadForm.addEventListener('submit', (evt) => {
-    evt.preventDefault();
-
-    if (pristine.validate()) {
-      const formData = new FormData(uploadForm);
-      fetch(uploadForm.action, {
-        method: uploadForm.method,
-        body: formData
-      })
-        .then((response) => {
-          if (response.ok) {
-            closeUploadForm();
-          }
-        })
-        .catch(() => {
-          // Обработка ошибки
-        });
-    }
+  // Обработчик кнопки отмены
+  const cancelButton = document.querySelector('#upload-cancel');
+  cancelButton.addEventListener('click', () => {
+    closeUploadForm();
+    resetForm();
   });
 };
 
-export { initUploadForm };
+export { initUploadForm, resetForm };

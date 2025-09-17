@@ -1,4 +1,3 @@
-
 //Функция, возвращающая случайное целое число из переданного диапазона включительно
 
 const getRandomNum = (start, end) => {
@@ -38,9 +37,69 @@ const isEscapeKey = (evt) => evt.key === 'Escape';
 
 //isLengthLimit();
 
+//Функция для показа сообщения
+const showMessage = (templateId, messageText) => {
+  const template = document.querySelector(`#${templateId}`);
+
+  if (!template) {
+    throw new Error(`Шаблон с ID ${templateId} не найден`);
+  }
+
+  const messageFragment = template.content.cloneNode(true);
+  const messageElement = messageFragment.querySelector('div');
+
+  if (messageText) {
+    const textElement = messageElement.querySelector('.message__text');
+    if (textElement) {
+      textElement.textContent = messageText;
+    }
+  }
+
+  document.body.appendChild(messageElement);
+  document.body.classList.add('modal-open');
+
+  const removeMessage = () => {
+    messageElement.remove();
+    document.body.classList.remove('modal-open');
+    document.removeEventListener('keydown', onDocumentKeydown);
+  };
+
+  const onDocumentKeydown = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      removeMessage();
+    }
+  };
+
+  const onMessageClick = (evt) => {
+    if (evt.target.closest('.success__button') || evt.target.closest('.error__button')) {
+      removeMessage();
+    }
+
+    if (!evt.target.closest('.success__inner') && !evt.target.closest('.error__inner')) {
+      removeMessage();
+    }
+  };
+
+  messageElement.addEventListener('click', onMessageClick);
+  document.addEventListener('keydown', onDocumentKeydown);
+};
+
+//Функция для показа сообщения об успехе
+const showSuccessMessage = (message) => {
+  showMessage('success', message);
+};
+
+//Функция для показа сообщения об ошибке
+const showErrorMessage = (message) => {
+  showMessage('error', message);
+};
+
 
 export {
   getRandomNum,
   getRandomArrayElement,
   isEscapeKey,
+  showSuccessMessage,
+  showErrorMessage
 };

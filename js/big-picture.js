@@ -1,4 +1,4 @@
-import { isEscapeKey } from './utils.js';
+import { isEscapeKey, showErrorMessage } from './utils.js';
 
 const COMMENTS_PER_LOAD = 5;
 const bigPictureElement = document.querySelector('.big-picture');
@@ -73,29 +73,55 @@ const onDocumentKeydown = (evt) => {
 };
 
 const showBigPicture = (pictureData) => {
-  // Инициализация данных
-  currentComments = pictureData.comments;
-  visibleCommentsCount = 0;
-  socialCommentsElement.innerHTML = '';
+  // Проверка наличия данных фото
+  if (!pictureData) {
+    showErrorMessage('Данные фото не найдены');
+    return;
+  }
 
-  // Отображение основных данных
-  renderPictureDetails(pictureData);
+  // Проверка обязательных полей
+  if (!pictureData.url || !pictureData.likes || !pictureData.comments || !pictureData.description) {
+    showErrorMessage('Неполные данные фото');
+    return;
+  }
 
-  // Показываем элементы управления комментариями
-  commentCountElement.classList.remove('hidden');
-  commentsLoaderElement.classList.remove('hidden');
+  try {
+    // Инициализация данных
+    currentComments = pictureData.comments || [];
+    visibleCommentsCount = 0;
+    socialCommentsElement.innerHTML = '';
 
-  // Первая порция комментариев
-  renderCommentsPortion();
+    // Отображение основных данных
+    renderPictureDetails(pictureData);
 
-  // Показываем модальное окно
-  bigPictureElement.classList.remove('hidden');
-  bodyElement.classList.add('modal-open');
+    // Показываем элементы управления комментариями
+    commentCountElement.classList.remove('hidden');
+    commentsLoaderElement.classList.remove('hidden');
 
-  // Подписываемся на события
-  document.addEventListener('keydown', onDocumentKeydown);
-  closeButtonElement.addEventListener('click', hideBigPicture);
-  commentsLoaderElement.addEventListener('click', onCommentsLoaderClick);
+    // Первая порция комментариев
+    if (currentComments.length > 0) {
+      renderCommentsPortion();
+    } else {
+      commentCountElement.textContent = '0 комментариев';
+      commentsLoaderElement.classList.add('hidden');
+    }
+
+    // Показываем модальное окно
+    bigPictureElement.classList.remove('hidden');
+    bodyElement.classList.add('modal-open');
+
+    // Подписываемся на события
+    document.addEventListener('keydown', onDocumentKeydown);
+    closeButtonElement.addEventListener('click', hideBigPicture);
+
+    if (currentComments.length > COMMENTS_PER_LOAD) {
+      commentsLoaderElement.addEventListener('click', onCommentsLoaderClick);
+    }
+
+  } catch (error) {
+    showErrorMessage('Ошибка при отображении фото');
+    hideBigPicture();
+  }
 };
 
 export { showBigPicture };
