@@ -1,7 +1,7 @@
 import { isEscapeKey } from './utils.js';
 import { sendData } from './api.js';
 import { showSuccessMessage, showErrorMessage } from './utils.js';
-import { closeUploadForm, resetForm } from './image-upload.js';
+import { resetForm } from './image-upload.js';
 
 // Константы
 const MAX_HASHTAGS = 5;
@@ -178,4 +178,10 @@ const initFormValidation = () => {
   form.addEventListener('submit', onFormSubmit);
 };
 
-export { initFormValidation, hideModal };
+export {
+  initFormValidation,
+  hideModal,
+  blockEscInFields,
+  showModal,
+  pristine
+};

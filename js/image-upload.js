@@ -1,5 +1,11 @@
-import { pristine, blockEscInFields, closeUploadForm, openUploadForm } from './form-validation.js';
-import { resetEffects, updateScale, initScale, initEffects, initSlider, DEFAULT_SCALE } from './image-effects.js';
+import {
+  pristine,
+  blockEscInFields,
+  hideModal as closeUploadForm,
+  showModal as openUploadForm
+} from './form-validation.js';
+import { resetEffects, initEffects, DEFAULT_SCALE } from './image-effects.js';
+import { initSlider } from './slider.js';
 
 // Константы
 const FILE_TYPES = ['jpg', 'jpeg', 'png'];

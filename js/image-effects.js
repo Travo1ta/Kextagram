@@ -55,4 +55,5 @@ const initEffects = () => {
   effectsContainer.addEventListener('change', onEffectChange);
 };
 
-export { initEffects, resetEffects };
+
+export { initEffects, resetEffects, DEFAULT_SCALE, };
