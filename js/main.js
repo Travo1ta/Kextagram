@@ -1,5 +1,3 @@
-
-
 import { getData } from './api.js';
 import { renderPictures } from './picture-render.js';
 import { initFormValidation } from './form-validation.js';
@@ -18,17 +16,32 @@ const initApp = async () => {
       picturesContainer.addEventListener('click', (evt) => {
         const picture = evt.target.closest('.picture');
         if (picture) {
-          const pictureData = picturesData.find(item => item.id === parseInt(picture.dataset.id, 10));
-          pictureData && showBigPicture(pictureData);
+          const pictureId = parseInt(picture.dataset.id, 10);
+          const pictureData = picturesData.find((item) => item.id === pictureId);
+
+          if (pictureData) {
+            showBigPicture(pictureData);
+          } else {
+            showErrorMessage('Фото не найдено');
+          }
         }
       });
     }
   } catch (error) {
-    showErrorMessage('Ошибка загрузки данных с сервера');
+    if (error.status === 404) {
+      showErrorMessage('Сервер не найден. Проверьте адрес');
+    } else if (error.status === 500) {
+      showErrorMessage('Ошибка на сервере. Попробуйте позже');
+    } else if (error.isNetworkError) {
+      showErrorMessage('Проблемы с соединением. Проверьте интернет');
+    } else {
+      showErrorMessage(error.message || 'Ошибка загрузки данных с сервера');
+    }
   }
 
-  initEffects();
   initFormValidation();
+  initEffects();
 };
 
 document.addEventListener('DOMContentLoaded', initApp);
+

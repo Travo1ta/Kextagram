@@ -1,4 +1,3 @@
-
 const BASE_URL = 'https://31.javascript.htmlacademy.pro/kekstagram';
 
 const Route = {
@@ -24,12 +23,20 @@ const load = async (route, errorText, method = Method.GET, body = null) => {
     });
 
     if (!response.ok) {
-      throw new Error(errorText);
+      const error = new Error(errorText);
+      error.status = response.status;
+      throw error;
     }
 
     return await response.json();
   } catch (error) {
-    throw new Error(errorText);
+    if (error.status) {
+      throw error;
+    }
+
+    const networkError = new Error(errorText);
+    networkError.isNetworkError = true;
+    throw networkError;
   }
 };
 

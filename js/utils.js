@@ -1,3 +1,5 @@
+//Функция, возвращающая случайное целое число из переданного диапазона включительно
+
 const getRandomNum = (start, end) => {
   if (start < 0 || end < 0) {
     throw new TypeError('Допускаются только положительные числа!');
@@ -21,24 +23,43 @@ const getRandomNum = (start, end) => {
   return Math.floor(Math.random() * (end - start + 1)) + start;
 };
 
+//функция для получения рандомного элемента массива
+
 const getRandomArrayElement = (array) => array[getRandomNum(0, array.length - 1)];
+
+//функция  проверки нажатой клавиши 'Escape'
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-const showMessage = (templateId, message) => {
+//Функция для проверки максимальной длины строки.
+
+//const isLengthLimit = (string, maxLength) =>  string.length <= maxLength;
+
+//isLengthLimit();
+
+//Функция для показа сообщения
+const showMessage = (templateId, messageText, buttonText = null) => {
   const template = document.querySelector(`#${templateId}`);
 
   if (!template) {
+    console.error(`Шаблон ${templateId} не найден`);
     return;
   }
 
   const messageFragment = template.content.cloneNode(true);
   const messageElement = messageFragment.querySelector('div');
 
-  if (message) {
-    const textElement = messageElement.querySelector('.message__text');
+  if (messageText) {
+    const textElement = messageElement.querySelector('.error__text') || messageElement.querySelector('.success__text');
     if (textElement) {
-      textElement.textContent = message;
+      textElement.textContent = messageText;
+    }
+  }
+
+  if (buttonText) {
+    const buttonElement = messageElement.querySelector('.error__button') || messageElement.querySelector('.success__button');
+    if (buttonElement) {
+      buttonElement.textContent = buttonText;
     }
   }
 
@@ -49,6 +70,7 @@ const showMessage = (templateId, message) => {
     messageElement.remove();
     document.body.classList.remove('modal-open');
     document.removeEventListener('keydown', onDocumentKeydown);
+    document.removeEventListener('click', onDocumentClick);
   };
 
   const onDocumentKeydown = (evt) => {
@@ -58,27 +80,36 @@ const showMessage = (templateId, message) => {
     }
   };
 
-  const onMessageClick = (evt) => {
-    if (evt.target.closest('.success__button') || evt.target.closest('.error__button')) {
-      removeMessage();
-    }
-
-    if (!evt.target.closest('.success__inner') && !evt.target.closest('.error__inner')) {
+  const onDocumentClick = (evt) => {
+    if (!messageElement.contains(evt.target)) {
       removeMessage();
     }
   };
 
-  messageElement.addEventListener('click', onMessageClick);
+  const onButtonClick = () => {
+    removeMessage();
+  };
+
+  // Обработчики для всех кнопок в сообщении
+  const buttons = messageElement.querySelectorAll('button');
+  buttons.forEach(button => {
+    button.addEventListener('click', onButtonClick);
+  });
+
   document.addEventListener('keydown', onDocumentKeydown);
+  document.addEventListener('click', onDocumentClick);
 };
 
+//Функция для показа сообщения об успехе
 const showSuccessMessage = (message) => {
   showMessage('success', message);
 };
 
-const showErrorMessage = (message) => {
-  showMessage('error', message);
+//Функция для показа сообщения об ошибке
+const showErrorMessage = (message, buttonText = null) => {
+  showMessage('error', message, buttonText);
 };
+
 
 export {
   getRandomNum,

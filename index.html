@@ -228,49 +228,35 @@
     </a>
   </template>
 
-  <!-- Сообщение с ошибкой загрузки изображения -->
-  <template id="error">
-    <section class="error">
-      <div class="error__inner">
-        <h2 class="error__title">Ошибка загрузки файла</h2>
-        <button type="button" class="error__button">Загрузить другой файл</button>
-      </div>
-    </section>
-  </template>
-
-  <!-- Сообщение об успешной загрузке изображения -->
-  <template id="success">
-    <section class="success">
-      <div class="success__inner">
-        <h2 class="success__title">Изображение успешно загружено</h2>
-        <button type="button" class="success__button">Круто!</button>
-      </div>
-    </section>
-  </template>
-
   <!-- Экран загрузки изображения -->
   <template id="messages">
     <div class="img-upload__message  img-upload__message--loading">Загружаем...</div>
   </template>
 
-  <!-- сообщение ошибки отправки данных-->
-  <template id="success">
-  <div class="success message">
+<!-- Перед закрывающим тегом </body> -->
+<template id="success">
+  <div class="success">
     <div class="success__inner">
       <h2 class="success__title">Успех!</h2>
-      <p class="success__text message__text">Ваше фото успешно опубликовано!</p>
+      <p class="success__text">Ваше фото успешно опубликовано!</p>
       <button type="button" class="success__button">Круто!</button>
     </div>
   </div>
 </template>
 
 <template id="error">
-  <div class="error message">
+  <div class="error">
     <div class="error__inner">
-      <h2 class="error__title">Ошибка</h2>
-      <p class="error__text message__text">Произошла ошибка при загрузке данных</p>
-      <button type="button" class="error__button">Попробовать снова</button>
-      <button type="button" class="error__button error__button--secondary">Отмена</button>
+      <h2 class="error__title">Ошибка загрузки файла</h2>
+      <p class="error__text">Не удалось загрузить данные с сервера</p>
+      <div class="error__buttons">
+        <button type="button" class="error__button error__button--primary">
+          Загрузить другой файл
+        </button>
+        <button type="button" class="error__button">
+          Отмена
+        </button>
+      </div>
     </div>
   </div>
 </template>
