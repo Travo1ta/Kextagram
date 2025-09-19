@@ -1,4 +1,3 @@
-// js/api.js
 
 const BASE_URL = 'https://31.javascript.htmlacademy.pro/kekstagram';
 

@@ -1,5 +1,3 @@
-//Функция, возвращающая случайное целое число из переданного диапазона включительно
-
 const getRandomNum = (start, end) => {
   if (start < 0 || end < 0) {
     throw new TypeError('Допускаются только положительные числа!');
@@ -23,35 +21,24 @@ const getRandomNum = (start, end) => {
   return Math.floor(Math.random() * (end - start + 1)) + start;
 };
 
-//функция для получения рандомного элемента массива
-
 const getRandomArrayElement = (array) => array[getRandomNum(0, array.length - 1)];
-
-//функция  проверки нажатой клавиши 'Escape'
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-//Функция для проверки максимальной длины строки.
-
-//const isLengthLimit = (string, maxLength) =>  string.length <= maxLength;
-
-//isLengthLimit();
-
-//Функция для показа сообщения
-const showMessage = (templateId, messageText) => {
+const showMessage = (templateId, message) => {
   const template = document.querySelector(`#${templateId}`);
 
   if (!template) {
-    throw new Error(`Шаблон с ID ${templateId} не найден`);
+    return;
   }
 
   const messageFragment = template.content.cloneNode(true);
   const messageElement = messageFragment.querySelector('div');
 
-  if (messageText) {
+  if (message) {
     const textElement = messageElement.querySelector('.message__text');
     if (textElement) {
-      textElement.textContent = messageText;
+      textElement.textContent = message;
     }
   }
 
@@ -85,16 +72,13 @@ const showMessage = (templateId, messageText) => {
   document.addEventListener('keydown', onDocumentKeydown);
 };
 
-//Функция для показа сообщения об успехе
 const showSuccessMessage = (message) => {
   showMessage('success', message);
 };
 
-//Функция для показа сообщения об ошибке
 const showErrorMessage = (message) => {
   showMessage('error', message);
 };
-
 
 export {
   getRandomNum,
