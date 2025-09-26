@@ -2,7 +2,7 @@ import { showBigPicture } from './big-picture.js';
 
 const picturesContainer = document.querySelector('.pictures');
 
-//Функция для создания DOM-элемента одной фотографии
+// Функция для создания DOM-элемента одной фотографии
 const createPictureElement = ({ id, url, likes, comments, description }) => {
   const pictureTemplate = document.querySelector('#picture')
     .content
@@ -28,28 +28,29 @@ const createPictureElement = ({ id, url, likes, comments, description }) => {
   return pictureElement;
 };
 
-//функция модуля для отрисовки всех фотографий
-// Принимает массив объектов-фотографий
-
-const renderPictures = (pictures) => {
-
-  const fragment = document.createDocumentFragment();
-
-  pictures.forEach((picture) => {
-
-    //cоздаем DOM-элемент для каждой фотографии
-    const pictureElement = createPictureElement(picture);
-
-    fragment.appendChild(pictureElement);
-  });
-
-
+// Функция очистки контейнера с фотографиями
+const clearPictures = () => {
   // Безопасная очистка контейнера
   while (picturesContainer.firstChild) {
     picturesContainer.removeChild(picturesContainer.firstChild);
   }
+};
+
+// Функция модуля для отрисовки всех фотографий
+// Принимает массив объектов-фотографий
+const renderPictures = (pictures) => {
+  // Очищаем существующие фотографии перед отрисовкой новых
+  clearPictures();
+
+  const fragment = document.createDocumentFragment();
+
+  pictures.forEach((picture) => {
+    // Создаем DOM-элемент для каждой фотографии
+    const pictureElement = createPictureElement(picture);
+    fragment.appendChild(pictureElement);
+  });
 
   picturesContainer.appendChild(fragment);
 };
 
-export { renderPictures };
+export { renderPictures, clearPictures };
