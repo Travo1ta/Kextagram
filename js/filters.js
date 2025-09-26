@@ -1,4 +1,3 @@
-import { debounce } from './utils.js';
 
 const Filter = {
   DEFAULT: 'filter-default',
