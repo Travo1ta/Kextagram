@@ -6,6 +6,8 @@ import { showBigPicture } from './big-picture.js';
 import { showErrorMessage, debounce } from './utils.js';
 import { turnFilterOn, filterPictures } from './filters.js';
 
+
+
 const initApp = async () => {
   const picturesContainer = document.querySelector('.pictures');
 

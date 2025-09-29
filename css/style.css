@@ -185,7 +185,9 @@ main {
 /* Блок, в котором размещаются фотографии других пользователей
    ========================================================================== */
 
-.pictures {
+
+
+ .pictures {
   display: -ms-grid;
   display: grid;
   grid-gap: 10px;
@@ -194,10 +196,13 @@ main {
       grid-template-columns: repeat(7, 1fr);
 }
 
-.picture {
+
+ .picture {
   position: relative;
   line-height: 0;
 }
+
+
 
 .picture__img {
   max-width: auto;
@@ -272,7 +277,7 @@ main {
 /* Поле для загрузки нового изображения
    ========================================================================== */
 
-.img-upload {
+ .img-upload {
   -ms-grid-column: 3;
   -ms-grid-column-span: 3;
   grid-column: 3 / span 3;
@@ -281,6 +286,7 @@ main {
   -ms-grid-row-span: 3;
   grid-row: 1 / span 3;
 }
+
 
 .img-upload__wrapper {
   margin: 0 auto;
@@ -1460,3 +1466,5 @@ main {
 .error__button--secondary {
   background-color: #757575;
 }
+
+

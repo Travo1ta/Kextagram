@@ -28,18 +28,21 @@ const createPictureElement = ({ id, url, likes, comments, description }) => {
   return pictureElement;
 };
 
-// Функция очистки контейнера с фотографиями
+// Функция очистки только фотографий (сохраняет блок загрузки)
 const clearPictures = () => {
-  // Безопасная очистка контейнера
-  while (picturesContainer.firstChild) {
-    picturesContainer.removeChild(picturesContainer.firstChild);
-  }
+  // Находим ВСЕ элементы .picture в контейнере
+  const pictureElements = picturesContainer.querySelectorAll('.picture');
+
+  // Удаляем только картинки, оставляя блок загрузки
+  pictureElements.forEach(picture => {
+    picture.remove();
+  });
 };
 
 // Функция модуля для отрисовки всех фотографий
 // Принимает массив объектов-фотографий
 const renderPictures = (pictures) => {
-  // Очищаем существующие фотографии перед отрисовкой новых
+  // Очищаем только существующие фотографии перед отрисовкой новых
   clearPictures();
 
   const fragment = document.createDocumentFragment();
