@@ -7,6 +7,9 @@ const DEFAULT_SCALE = 100;
 const image = document.querySelector('.img-upload__preview img');
 const effectsContainer = document.querySelector('.img-upload__effects');
 
+// Флаг для отслеживания инициализации
+let isEffectsInitialized = false;
+
 // Обработчик изменения эффекта
 const onEffectChange = (evt) => {
   if (evt.target.classList.contains('effects__radio')) {
@@ -31,7 +34,12 @@ const resetEffects = () => {
 
 // Инициализация модуля
 const initEffects = () => {
-  initSlider();
+  // Проверяем, не был ли уже инициализирован слайдер
+  if (!isEffectsInitialized) {
+    initSlider();
+    isEffectsInitialized = true;
+  }
+
   resetEffects();
   effectsContainer.addEventListener('change', onEffectChange);
 };

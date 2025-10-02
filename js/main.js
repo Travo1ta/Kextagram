@@ -6,21 +6,16 @@ import { showBigPicture } from './big-picture.js';
 import { showErrorMessage, debounce } from './utils.js';
 import { turnFilterOn, filterPictures } from './filters.js';
 
-
-
 const initApp = async () => {
   const picturesContainer = document.querySelector('.pictures');
 
   try {
     const picturesData = await getData();
 
-    // Оптимизированная функция отрисовки с устранением дребезга
     const debouncedRenderPictures = debounce(renderPictures);
 
-    // Включаем фильтры и передаем функцию отрисовки
     turnFilterOn(picturesData, debouncedRenderPictures);
 
-    // Первоначальная отрисовка с применением фильтра по умолчанию
     debouncedRenderPictures(filterPictures());
 
     if (picturesContainer) {

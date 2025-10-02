@@ -1,16 +1,15 @@
-
-import { isEscapeKey } from './utils.js';
+import { isEscapeKey, showSuccessMessage, showErrorMessage } from './utils.js';
 import { sendData } from './api.js';
-import { showSuccessMessage, showErrorMessage } from './utils.js';
-import { resetForm } from './image-upload.js';
 
-// Константы
 const MAX_HASHTAGS = 5;
 const MAX_HASHTAG_LENGTH = 20;
 const MAX_DESCRIPTION_LENGTH = 140;
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+const SCALE_STEP = 25;
+const MIN_SCALE = 25;
+const MAX_SCALE = 100;
 
-// DOM элементы
 const form = document.querySelector('.img-upload__form');
 const fileInput = document.querySelector('#upload-file');
 const cancelButton = document.querySelector('#upload-cancel');
@@ -18,8 +17,12 @@ const overlay = document.querySelector('.img-upload__overlay');
 const hashtagInput = form.querySelector('.text__hashtags');
 const descriptionInput = form.querySelector('.text__description');
 const submitButton = form.querySelector('.img-upload__submit');
+const photoPreview = document.querySelector('.img-upload__preview img');
+const effectsPreviews = document.querySelectorAll('.effects__preview');
+const scaleInput = document.querySelector('.scale__control--value');
+const smallerButton = document.querySelector('.scale__control--smaller');
+const biggerButton = document.querySelector('.scale__control--bigger');
 
-// Инициализация Pristine с кастомными классами
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper',
@@ -27,7 +30,32 @@ const pristine = new Pristine(form, {
   errorTextTag: 'div'
 });
 
-// Функции управления формой
+// Функции масштабирования
+const scaleImage = (value) => {
+  const scaleValue = Math.max(MIN_SCALE, Math.min(MAX_SCALE, value));
+  photoPreview.style.transform = `scale(${scaleValue / 100})`;
+  scaleInput.value = `${scaleValue}%`;
+};
+
+const onScaleButtonClick = (direction) => {
+  const currentValue = parseInt(scaleInput.value, 10);
+  const newValue = direction === 'increase'
+    ? currentValue + SCALE_STEP
+    : currentValue - SCALE_STEP;
+  scaleImage(newValue);
+};
+
+const initScale = () => {
+  scaleImage(MAX_SCALE);
+  smallerButton.addEventListener('click', () => onScaleButtonClick('decrease'));
+  biggerButton.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Enter' || evt.key === ' ') {
+      onScaleButtonClick('increase');
+    }
+  });
+  biggerButton.addEventListener('click', () => onScaleButtonClick('increase'));
+};
+
 const showModal = () => {
   overlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
@@ -37,6 +65,7 @@ const showModal = () => {
 const hideModal = () => {
   form.reset();
   pristine.reset();
+  scaleImage(MAX_SCALE); // Сбрасываем масштаб при закрытии
   overlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', onDocumentKeydown);
@@ -53,25 +82,22 @@ const onDocumentKeydown = (evt) => {
   }
 };
 
-// Валидация хэштегов
 const validateHashtag = (tag) => {
-  if (tag === '#') return false; // Не может состоять только из решетки
-  if (tag.length > MAX_HASHTAG_LENGTH) return false; // Макс. длина 20 символов
-  return HASHTAG_REGEX.test(tag); // Соответствие регулярному выражению
+  if (tag === '#') return false;
+  if (tag.length > MAX_HASHTAG_LENGTH) return false;
+  return HASHTAG_REGEX.test(tag);
 };
 
 const validateHashtags = (value) => {
   const input = value.trim();
-  if (!input) return true; // Хэштеги не обязательны
+  if (!input) return true;
 
   const hashtags = input.split(/\s+/);
 
-  // Проверка количества
   if (hashtags.length > MAX_HASHTAGS) {
     return false;
   }
 
-  // Проверка уникальности (нечувствительность к регистру)
   const normalizedTags = hashtags.map((tag) => tag.toLowerCase());
   const uniqueTags = new Set(normalizedTags);
 
@@ -79,7 +105,6 @@ const validateHashtags = (value) => {
     return false;
   }
 
-  // Проверка каждого хэштега
   return hashtags.every(validateHashtag);
 };
 
@@ -93,11 +118,9 @@ const getHashtagErrorMessage = () => `
   - Быть уникальным (регистр не учитывается)
 `;
 
-// Валидация описания
 const validateDescription = (value) =>
   value.length <= MAX_DESCRIPTION_LENGTH;
 
-// Добавление валидаторов
 pristine.addValidator(
   hashtagInput,
   validateHashtags,
@@ -110,20 +133,17 @@ pristine.addValidator(
   `Комментарий не может быть длиннее ${MAX_DESCRIPTION_LENGTH} символов`
 );
 
-// Блокировка Esc в полях ввода
 const blockEscInFields = (evt) => {
   if (isEscapeKey(evt)) {
     evt.stopPropagation();
   }
 };
 
-// Управление состоянием кнопки отправки
 const setSubmitButtonState = (isEnabled) => {
   submitButton.disabled = !isEnabled;
   submitButton.textContent = isEnabled ? 'Опубликовать' : 'Публикую...';
 };
 
-// Обработчик отправки формы
 const onFormSubmit = async (evt) => {
   evt.preventDefault();
 
@@ -142,7 +162,6 @@ const onFormSubmit = async (evt) => {
 
     showSuccessMessage('Фото успешно опубликовано!');
     hideModal();
-    resetForm();
   } catch (error) {
     showErrorMessage('Не удалось отправить форму. Попробуйте ещё раз');
   } finally {
@@ -150,28 +169,36 @@ const onFormSubmit = async (evt) => {
   }
 };
 
-// Инициализация формы
+const isValidType = (file) => {
+  const fileName = file.name.toLowerCase();
+  return FILE_TYPES.some((it) => fileName.endsWith(it));
+};
+
+const onFileInputChange = () => {
+  const file = fileInput.files[0];
+
+  if (file && isValidType(file)) {
+    photoPreview.src = URL.createObjectURL(file);
+
+    effectsPreviews.forEach((preview) => {
+      preview.style.backgroundImage = `url('${photoPreview.src}')`;
+    });
+  }
+  showModal();
+};
+
 const initFormValidation = () => {
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (file) {
-      const fileName = file.name.toLowerCase();
-      const matches = ['jpg', 'jpeg', 'png'].some((ext) => fileName.endsWith(ext));
-      if (matches) {
-        showModal();
-      }
-    }
-  });
+  initScale(); // Инициализируем масштабирование
+
+  fileInput.addEventListener('change', onFileInputChange);
 
   cancelButton.addEventListener('click', () => {
     hideModal();
-    resetForm();
   });
 
   hashtagInput.addEventListener('keydown', blockEscInFields);
   descriptionInput.addEventListener('keydown', blockEscInFields);
 
-  // Live-валидация
   hashtagInput.addEventListener('input', () => {
     pristine.validate(hashtagInput);
   });
