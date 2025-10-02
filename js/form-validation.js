@@ -1,14 +1,12 @@
 import { isEscapeKey, showSuccessMessage, showErrorMessage } from './utils.js';
 import { sendData } from './api.js';
+import { initEffects, resetEffects } from './image-effects.js';
 
 const MAX_HASHTAGS = 5;
 const MAX_HASHTAG_LENGTH = 20;
 const MAX_DESCRIPTION_LENGTH = 140;
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 const FILE_TYPES = ['jpg', 'jpeg', 'png'];
-const SCALE_STEP = 25;
-const MIN_SCALE = 25;
-const MAX_SCALE = 100;
 
 const form = document.querySelector('.img-upload__form');
 const fileInput = document.querySelector('#upload-file');
@@ -19,9 +17,6 @@ const descriptionInput = form.querySelector('.text__description');
 const submitButton = form.querySelector('.img-upload__submit');
 const photoPreview = document.querySelector('.img-upload__preview img');
 const effectsPreviews = document.querySelectorAll('.effects__preview');
-const scaleInput = document.querySelector('.scale__control--value');
-const smallerButton = document.querySelector('.scale__control--smaller');
-const biggerButton = document.querySelector('.scale__control--bigger');
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
@@ -29,32 +24,6 @@ const pristine = new Pristine(form, {
   errorTextClass: 'img-upload__error-text',
   errorTextTag: 'div'
 });
-
-// Функции масштабирования
-const scaleImage = (value) => {
-  const scaleValue = Math.max(MIN_SCALE, Math.min(MAX_SCALE, value));
-  photoPreview.style.transform = `scale(${scaleValue / 100})`;
-  scaleInput.value = `${scaleValue}%`;
-};
-
-const onScaleButtonClick = (direction) => {
-  const currentValue = parseInt(scaleInput.value, 10);
-  const newValue = direction === 'increase'
-    ? currentValue + SCALE_STEP
-    : currentValue - SCALE_STEP;
-  scaleImage(newValue);
-};
-
-const initScale = () => {
-  scaleImage(MAX_SCALE);
-  smallerButton.addEventListener('click', () => onScaleButtonClick('decrease'));
-  biggerButton.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Enter' || evt.key === ' ') {
-      onScaleButtonClick('increase');
-    }
-  });
-  biggerButton.addEventListener('click', () => onScaleButtonClick('increase'));
-};
 
 const showModal = () => {
   overlay.classList.remove('hidden');
@@ -65,7 +34,7 @@ const showModal = () => {
 const hideModal = () => {
   form.reset();
   pristine.reset();
-  scaleImage(MAX_SCALE); // Сбрасываем масштаб при закрытии
+  resetEffects();
   overlay.classList.add('hidden');
   document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', onDocumentKeydown);
@@ -178,8 +147,10 @@ const onFileInputChange = () => {
   const file = fileInput.files[0];
 
   if (file && isValidType(file)) {
+    // Используем URL.createObjectURL для простоты
     photoPreview.src = URL.createObjectURL(file);
 
+    // Замена изображений миниатюр с фильтрами
     effectsPreviews.forEach((preview) => {
       preview.style.backgroundImage = `url('${photoPreview.src}')`;
     });
@@ -188,8 +159,6 @@ const onFileInputChange = () => {
 };
 
 const initFormValidation = () => {
-  initScale(); // Инициализируем масштабирование
-
   fileInput.addEventListener('change', onFileInputChange);
 
   cancelButton.addEventListener('click', () => {
