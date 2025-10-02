@@ -1,22 +1,18 @@
 import { isEscapeKey, showSuccessMessage, showErrorMessage } from './utils.js';
 import { sendData } from './api.js';
-import { initEffects, resetEffects } from './image-effects.js';
+import { resetEffects } from './image-effects.js';
 
 const MAX_HASHTAGS = 5;
 const MAX_HASHTAG_LENGTH = 20;
 const MAX_DESCRIPTION_LENGTH = 140;
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
-const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
 const form = document.querySelector('.img-upload__form');
-const fileInput = document.querySelector('#upload-file');
 const cancelButton = document.querySelector('#upload-cancel');
 const overlay = document.querySelector('.img-upload__overlay');
 const hashtagInput = form.querySelector('.text__hashtags');
 const descriptionInput = form.querySelector('.text__description');
 const submitButton = form.querySelector('.img-upload__submit');
-const photoPreview = document.querySelector('.img-upload__preview img');
-const effectsPreviews = document.querySelectorAll('.effects__preview');
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
@@ -138,29 +134,7 @@ const onFormSubmit = async (evt) => {
   }
 };
 
-const isValidType = (file) => {
-  const fileName = file.name.toLowerCase();
-  return FILE_TYPES.some((it) => fileName.endsWith(it));
-};
-
-const onFileInputChange = () => {
-  const file = fileInput.files[0];
-
-  if (file && isValidType(file)) {
-    // Используем URL.createObjectURL для простоты
-    photoPreview.src = URL.createObjectURL(file);
-
-    // Замена изображений миниатюр с фильтрами
-    effectsPreviews.forEach((preview) => {
-      preview.style.backgroundImage = `url('${photoPreview.src}')`;
-    });
-  }
-  showModal();
-};
-
 const initFormValidation = () => {
-  fileInput.addEventListener('change', onFileInputChange);
-
   cancelButton.addEventListener('click', () => {
     hideModal();
   });

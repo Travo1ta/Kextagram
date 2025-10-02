@@ -1,6 +1,7 @@
 import { getData } from './api.js';
 import { renderPictures } from './picture-render.js';
 import { initFormValidation } from './form-validation.js';
+import { initUploadForm } from './image-upload.js';
 import { initEffects } from './image-effects.js';
 import { showBigPicture } from './big-picture.js';
 import { showErrorMessage, debounce } from './utils.js';
@@ -12,10 +13,13 @@ const initApp = async () => {
   try {
     const picturesData = await getData();
 
+    // Оптимизированная функция отрисовки с устранением дребезга
     const debouncedRenderPictures = debounce(renderPictures);
 
+    // Включаем фильтры и передаем функцию отрисовки
     turnFilterOn(picturesData, debouncedRenderPictures);
 
+    // Первоначальная отрисовка с применением фильтра по умолчанию
     debouncedRenderPictures(filterPictures());
 
     if (picturesContainer) {
@@ -45,8 +49,10 @@ const initApp = async () => {
     }
   }
 
-  initFormValidation();
-  initEffects();
+  // Инициализация всех модулей
+  initFormValidation();    // Валидация формы и управление модальным окном
+  initUploadForm();        // Загрузка фото и масштабирование
+  initEffects();           // Эффекты и фильтры
 };
 
 document.addEventListener('DOMContentLoaded', initApp);
